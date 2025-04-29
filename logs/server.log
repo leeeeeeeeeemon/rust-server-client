@@ -1,0 +1,42 @@
+[2025-04-29 12:30:27] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 12:30:54] [INFO] [Server] Received packet from 127.0.0.1:64543: ConnectRequest
+[2025-04-29 12:30:54] [INFO] [Server] New client added: 444fdf96-03dd-468c-84bf-cfe38ed03cf3
+[2025-04-29 12:32:09] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 12:32:12] [INFO] [Client] Socket created: 0.0.0.0:52465
+[2025-04-29 12:32:12] [INFO] [Server] Received packet from 127.0.0.1:52465: ConnectRequest
+[2025-04-29 12:32:12] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 12:32:12] [INFO] [Server] New client added: 938352a8-794d-4e95-b283-3d3b92c3554c
+[2025-04-29 12:35:32] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 12:35:39] [INFO] [Client] Socket created: 0.0.0.0:58442
+[2025-04-29 12:35:39] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 12:35:39] [INFO] [Server] Received packet from 127.0.0.1:58442: ConnectRequest
+[2025-04-29 12:35:39] [INFO] [Server] New client added: f9d31985-8766-49b9-b881-6e020e831614
+[2025-04-29 12:35:39] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 12:35:39] [INFO] [Server] Received packet from 127.0.0.1:58442: ClientListRequest
+[2025-04-29 12:35:39] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 12:35:39] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 12:35:39] [INFO] - f9d31985-8766-49b9-b881-6e020e831614 (Desktop)
+[2025-04-29 12:35:39] [INFO] [Client] Active clients:
+[2025-04-29 12:35:39] [INFO] - f9d31985-8766-49b9-b881-6e020e831614
+[2025-04-29 12:35:39] [ERROR] [Client] No other clients found.
+[2025-04-29 12:35:49] [INFO] [Client] Socket created: 0.0.0.0:51530
+[2025-04-29 12:35:49] [INFO] [Server] Received packet from 127.0.0.1:51530: ConnectRequest
+[2025-04-29 12:35:49] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 12:35:49] [INFO] [Server] New client added: dc7b7965-72a9-4a0d-94d1-b1cbe468dc90
+[2025-04-29 12:35:49] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 12:35:49] [INFO] [Server] Received packet from 127.0.0.1:51530: ClientListRequest
+[2025-04-29 12:35:49] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 12:35:49] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 12:35:49] [INFO] - dc7b7965-72a9-4a0d-94d1-b1cbe468dc90 (Desktop)
+[2025-04-29 12:35:49] [INFO] - f9d31985-8766-49b9-b881-6e020e831614 (Desktop)
+[2025-04-29 12:35:49] [INFO] [Client] Active clients:
+[2025-04-29 12:35:49] [INFO] - dc7b7965-72a9-4a0d-94d1-b1cbe468dc90
+[2025-04-29 12:35:49] [INFO] - f9d31985-8766-49b9-b881-6e020e831614
+[2025-04-29 12:35:49] [INFO] [Client] Requesting info for client: f9d31985-8766-49b9-b881-6e020e831614
+[2025-04-29 12:35:49] [INFO] [Server] Received packet from 127.0.0.1:51530: ClientInfoRequest
+[2025-04-29 12:35:49] [INFO] [Client] Sent ClientInfoRequest to server
+[2025-04-29 12:35:49] [INFO] [Server] Client requested info for specific client
+[2025-04-29 12:35:49] [INFO] [Server] Found client f9d31985-8766-49b9-b881-6e020e831614: Desktop
+[2025-04-29 12:35:49] [INFO] [Client] Client info:
+[2025-04-29 12:35:49] [INFO]   Address: 127.0.0.1:58442
+[2025-04-29 12:35:49] [INFO]   Device: Desktop

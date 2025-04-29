@@ -1,0 +1,119 @@
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
+use tokio::net::UdpSocket;
+use uuid::Uuid;
+use crate::protocol::{Packet, PacketType};
+use bincode;
+
+type ClientId = Uuid;
+
+#[derive(Debug)]
+pub struct ClientInfo {
+    pub address: SocketAddr,
+    pub device_type: String,
+}
+
+pub async fn run_udp_server() -> std::io::Result<()> {
+    let socket = UdpSocket::bind("0.0.0.0:8080").await?;
+    log::info!("[Server] Listening on {}", socket.local_addr()?);
+
+    let clients: Arc<Mutex<HashMap<ClientId, ClientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
+    let mut buf = vec![0u8; 2048];
+
+    loop {
+        let (len, addr) = socket.recv_from(&mut buf).await?;
+        let received = &buf[..len];
+
+        match bincode::deserialize::<Packet>(received) {
+            Ok(packet) => {
+                log::info!("[Server] Received packet from {}: {:?}", addr, packet.packet_type);
+
+                match packet.packet_type {
+                    PacketType::ConnectRequest => {
+                        let client_id = Uuid::new_v4();
+                        let device_type = String::from_utf8(packet.payload.clone()).unwrap_or_else(|_| "Unknown".into());
+
+                        let client_info = ClientInfo {
+                            address: addr,
+                            device_type,
+                        };
+
+                        let mut clients_map = clients.lock().unwrap();
+                        clients_map.insert(client_id, client_info);
+
+                        log::info!("[Server] New client added: {}", client_id);
+
+                        let response_packet = Packet {
+                            packet_type: PacketType::ConnectResponse,
+                            payload: bincode::serialize(&client_id).expect("Failed to serialize UUID"),
+                        };
+
+                        let encoded = bincode::serialize(&response_packet).expect("Failed to serialize response packet");
+                        socket.send_to(&encoded, addr).await?;
+                    }
+
+                    PacketType::ClientListRequest => {
+                        log::info!("[Server] Client requested list of active sessions");
+
+                        let clients_map = clients.lock().unwrap();
+                        log::info!("[Server] Current clients in HashMap:");
+                        for (id, info) in clients_map.iter() {
+                            log::info!("- {} ({})", id, info.device_type);
+                        }
+
+                        let client_ids: Vec<Uuid> = clients_map.keys().cloned().collect();
+
+                        let payload = bincode::serialize(&client_ids).expect("Failed to serialize client list");
+
+                        let response_packet = Packet {
+                            packet_type: PacketType::ClientListResponse,
+                            payload,
+                        };
+
+                        let encoded = bincode::serialize(&response_packet).expect("Failed to serialize response packet");
+                        socket.send_to(&encoded, addr).await?;
+                    }
+
+                    PacketType::ClientInfoRequest => {
+                        log::info!("[Server] Client requested info for specific client");
+
+                        let requested_id: Uuid = match bincode::deserialize(&packet.payload) {
+                            Ok(id) => id,
+                            Err(_) => {
+                                log::error!("[Server] Failed to deserialize requested client ID");
+                                continue;
+                            }
+                        };
+
+                        let clients_map = clients.lock().unwrap();
+
+                        if let Some(info) = clients_map.get(&requested_id) {
+                            log::info!("[Server] Found client {}: {}", requested_id, info.device_type);
+
+                            let response_data = (info.address, info.device_type.clone());
+                            let payload = bincode::serialize(&response_data).expect("Failed to serialize client info");
+
+                            let response_packet = Packet {
+                                packet_type: PacketType::ClientInfoResponse,
+                                payload,
+                            };
+
+                            let encoded = bincode::serialize(&response_packet).expect("Failed to serialize response packet");
+                            socket.send_to(&encoded, addr).await?;
+                        } else {
+                            log::error!("[Server] Client ID not found: {}", requested_id);
+                        }
+                    }
+
+                    _ => {
+                        log::error!("[Server] Unknown packet type: {:?}", packet.packet_type);
+                    }
+                }
+            }
+            Err(e) => {
+                log::error!("[Server] Failed to deserialize packet: {}", e);
+            }
+        }
+    }
+}
