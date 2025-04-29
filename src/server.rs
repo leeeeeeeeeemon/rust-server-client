@@ -6,6 +6,7 @@ use tokio::net::UdpSocket;
 use uuid::Uuid;
 use crate::protocol::{Packet, PacketType};
 use bincode;
+use tokio::time::{sleep, Duration};
 
 type ClientId = Uuid;
 
@@ -22,6 +23,35 @@ pub async fn run_udp_server() -> std::io::Result<()> {
     log::info!("[Server] Listening on {}", socket.local_addr()?);
 
     let clients: Arc<Mutex<HashMap<ClientId, ClientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
+
+    let clients_cleanup = Arc::clone(&clients); // клонируем для фоновой задачи
+
+    //Очистка клиентов которые больше не пингуют
+    tokio::spawn(async move {
+        loop {
+            sleep(Duration::from_secs(10)).await;
+
+            let mut clients_map = clients_cleanup.lock().unwrap();
+            let now = Instant::now();
+
+            let before = clients_map.len();
+
+            clients_map.retain(|client_id, info| {
+                let alive = now.duration_since(info.last_seen) <= Duration::from_secs(15);
+                if !alive {
+                    log::warn!("[Server] Removing inactive client: {}", client_id);
+                }
+                alive
+            });
+
+            let after = clients_map.len();
+
+            if before != after {
+                log::info!("[Server] Active clients after cleanup: {}", after);
+            }
+        }
+    });
+
     let mut buf = vec![0u8; 2048];
 
     loop {
@@ -128,7 +158,7 @@ pub async fn run_udp_server() -> std::io::Result<()> {
                             log::warn!("[Server] Ping from unknown client: {}", client_id);
                         }
                     
-                        // отправим PingAck, если надо
+                        // Подтверждаем keep-alive
                         let response_packet = Packet {
                             packet_type: PacketType::PingAck,
                             payload: vec![],

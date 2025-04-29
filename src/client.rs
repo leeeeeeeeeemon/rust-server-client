@@ -1,9 +1,10 @@
 use tokio::net::UdpSocket;
+use uuid::Uuid;
 use crate::protocol::{Packet, PacketType};
 use bincode;
-use uuid::Uuid;
-use tokio::time::{sleep, Duration};
 use std::sync::Arc;
+use tokio::time::{sleep, Duration};
+use inquire::{Select, Text};
 
 pub async fn run_udp_client() -> std::io::Result<()> {
     let socket = Arc::new(UdpSocket::bind("0.0.0.0:0").await?);
@@ -21,115 +22,146 @@ pub async fn run_udp_client() -> std::io::Result<()> {
     socket.send_to(&encoded, server_addr).await?;
     log::info!("[Client] Sent ConnectRequest to server at {}", server_addr);
 
-    // Ждём ConnectResponse
+    // Получаем ConnectResponse
     let mut buf = vec![0u8; 2048];
     let (len, _) = socket.recv_from(&mut buf).await?;
     let received = &buf[..len];
-    let mut my_id: Option<Uuid> = None; 
-    
     let response_packet: Packet = bincode::deserialize(received).expect("Failed to deserialize packet");
 
-    // Проверяем, что это ConnectResponse
-    if let PacketType::ConnectResponse = response_packet.packet_type {
-        // десериализуем UUID 
-        let id: Uuid = bincode::deserialize(&response_packet.payload)
-                                    .expect("Failed to deserialize my ID");
-        log::debug!("[Client] Successfully connected to server! My ID: {:?}", my_id);
-        my_id = Some(id);
-
-        
-    } else {
-        log::error!("[Client] Unexpected packet type: {:?}", response_packet.packet_type);
-        return Ok(());
-    }
-
-    // Отправляем ClientListRequest
-    let list_request_packet = Packet {
-        packet_type: PacketType::ClientListRequest,
-        payload: vec![],
+    let my_id: Uuid = match response_packet.packet_type {
+        PacketType::ConnectResponse => {
+            bincode::deserialize(&response_packet.payload).expect("Failed to deserialize my ID")
+        }
+        _ => {
+            log::error!("[Client] Unexpected packet type: {:?}", response_packet.packet_type);
+            return Ok(());
+        }
     };
 
-    let encoded_list_request = bincode::serialize(&list_request_packet).expect("Failed to serialize list request");
-    socket.send_to(&encoded_list_request, server_addr).await?;
-    log::info!("[Client] Sent ClientListRequest to server");
+    log::info!("[Client] Connected! My ID: {}", my_id);
 
-    //  Ждём ClientListResponse
-    let (len, _) = socket.recv_from(&mut buf).await?;
-    let received = &buf[..len];
+    // Фоновая задача для keep-alive
+    let socket_clone = Arc::clone(&socket);
+    let my_id_bytes = bincode::serialize(&my_id).expect("Failed to serialize UUID");
+    let server_addr_str = server_addr.to_string();
 
-    let packet: Packet = bincode::deserialize(received).expect("Failed to deserialize packet");
-
-    if let PacketType::ClientListResponse = packet.packet_type {
-        let client_list: Vec<Uuid> = bincode::deserialize(&packet.payload).expect("Failed to deserialize client list");
-
-        log::info!("[Client] Active clients:");
-        for id in &client_list {
-            log::info!("- {}", id);
+    tokio::spawn(async move {
+        loop {
+            let ping_packet = Packet {
+                packet_type: PacketType::Ping,
+                payload: my_id_bytes.clone(),
+            };
+            let encoded = bincode::serialize(&ping_packet).unwrap();
+            if let Err(e) = socket_clone.send_to(&encoded, &server_addr_str).await {
+                log::error!("[Client] Failed to send Ping: {}", e);
+            } else {
+                log::debug!("[Client] Sent Ping");
+            }
+            sleep(Duration::from_secs(5)).await;
         }
-        
-        if let Some(my_id_value) = my_id {
-            let socket_clone = Arc::clone(&socket);
-            let my_id_bytes = bincode::serialize(&my_id_value).expect("Failed to serialize my ID");
-            let server_addr = server_addr.to_string();
-        
-            tokio::spawn(async move {
-                loop {
-                    let ping_packet = Packet {
-                        packet_type: PacketType::Ping,
-                        payload: my_id_bytes.clone(),
-                    };
-        
-                    let encoded = bincode::serialize(&ping_packet).expect("Failed to serialize Ping");
-        
-                    if let Err(e) = socket_clone.send_to(&encoded, &server_addr).await {
-                        log::error!("[Client] Failed to send Ping: {}", e);
-                    } else {
-                        log::debug!("[Client] Sent Ping");
-                    }
-        
-                    sleep(Duration::from_secs(5)).await;
-                }
-            });
-        }
-        // if let Some(my_id_value) = my_id {
-        //     if let Some(first_client_id) = client_list.iter().find(|&&id| id != my_id_value) {
-        //         log::info!("[Client] Requesting info for client: {}", first_client_id);
-        
-        //         // Отправляем ClientInfoRequest на информацию о первом найденном клиенте, но не о себе
-        //         let info_request_packet = Packet {
-        //             packet_type: PacketType::ClientInfoRequest,
-        //             payload: bincode::serialize(first_client_id).expect("Failed to serialize client ID"),
-        //         };
-        
-        //         let encoded_info_request = bincode::serialize(&info_request_packet).expect("Failed to serialize info request packet");
-        //         socket.send_to(&encoded_info_request, server_addr).await?;
-        //         log::info!("[Client] Sent ClientInfoRequest to server");
-        
-        //         // Ждём ClientInfoResponse
-        //         let mut buf = vec![0u8; 2048];
-        //         let (len, _) = socket.recv_from(&mut buf).await?;
-        //         let received = &buf[..len];
-        
-        //         let packet: Packet = bincode::deserialize(received).expect("Failed to deserialize packet");
-        
-        //         if let PacketType::ClientInfoResponse = packet.packet_type {
-        //             let (address, device_type): (std::net::SocketAddr, String) =
-        //                 bincode::deserialize(&packet.payload).expect("Failed to deserialize client info");
-        
-        //                 log::info!("[Client] Client info:");
-        //                 log::info!("  Address: {}", address);
-        //                 log::info!("  Device: {}", device_type);
-        //         }
-        //     } else {
-        //         log::error!("[Client] No other clients found.");
-        //     }
-        // } else {
-        //     log::error!("[Client] Cannot request client info — no connection ID available.");
-        // }
-        
-    }
+    });
+
+    // Меню команд
     loop {
-        sleep(Duration::from_secs(3600)).await; // клиент "живёт" час
+        let actions = vec![
+            "Показать список клиентов",
+            "Запросить информацию о клиенте",
+            "Выйти",
+        ];
+
+        let choice = Select::new("Выберите действие", actions).prompt();
+
+        match choice {
+            Ok(action) => match action {
+                "Показать список клиентов" => {
+                    let list_request = Packet {
+                        packet_type: PacketType::ClientListRequest,
+                        payload: vec![],
+                    };
+
+                    let encoded = bincode::serialize(&list_request).unwrap();
+                    socket.send_to(&encoded, server_addr).await?;
+
+                    loop {
+                        let (len, _) = socket.recv_from(&mut buf).await?;
+                        let packet: Packet = bincode::deserialize(&buf[..len]).unwrap();
+
+                        match packet.packet_type {
+                            PacketType::ClientListResponse => {
+                                let clients: Vec<Uuid> = bincode::deserialize(&packet.payload).unwrap();
+                                log::info!("[Client] Активные клиенты:");
+                                for id in &clients {
+                                    log::info!("- {}", id);
+                                }
+                                break;
+                            }
+                            PacketType::PingAck => {
+                                log::debug!("[Client] Получен PingAck (пропускаем)");
+                                continue;
+                            }
+                            _ => {
+                                log::warn!("[Client] Неожиданный пакет: {:?}", packet.packet_type);
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+
+                "Запросить информацию о клиенте" => {
+                    let input = Text::new("Введите UUID клиента:").prompt();
+                    if let Ok(id_str) = input {
+                        if let Ok(client_id) = Uuid::parse_str(&id_str) {
+                            let info_request = Packet {
+                                packet_type: PacketType::ClientInfoRequest,
+                                payload: bincode::serialize(&client_id).unwrap(),
+                            };
+                            let encoded = bincode::serialize(&info_request).unwrap();
+                            socket.send_to(&encoded, server_addr).await?;
+
+                            loop {
+                                let (len, _) = socket.recv_from(&mut buf).await?;
+                                let packet: Packet = bincode::deserialize(&buf[..len]).unwrap();
+
+                                match packet.packet_type {
+                                    PacketType::ClientInfoResponse => {
+                                        let (addr, device): (std::net::SocketAddr, String) =
+                                            bincode::deserialize(&packet.payload).unwrap();
+                                        log::info!("[Client] Client info:");
+                                        log::info!("  Address: {}", addr);
+                                        log::info!("  Device: {}", device);
+                                        break;
+                                    }
+                                    PacketType::PingAck => {
+                                        log::debug!("[Client] Получен PingAck (пропускаем)");
+                                        continue;
+                                    }
+                                    _ => {
+                                        log::warn!("[Client] Неожиданный пакет: {:?}", packet.packet_type);
+                                        continue;
+                                    }
+                                }
+                            }
+                        } else {
+                            log::warn!("[Client] Некорректный UUID");
+                        }
+                    }
+                }
+
+
+                "Выйти" => {
+                    log::info!("[Client] Завершение работы.");
+                    break;
+                }
+
+                _ => {}
+            },
+            Err(_) => {
+                log::warn!("Ошибка ввода. Завершаем.");
+                break;
+            }
+        }
     }
+
     Ok(())
 }
