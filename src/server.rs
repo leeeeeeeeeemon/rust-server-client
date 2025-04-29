@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 use tokio::net::UdpSocket;
 use uuid::Uuid;
 use crate::protocol::{Packet, PacketType};
@@ -12,6 +13,8 @@ type ClientId = Uuid;
 pub struct ClientInfo {
     pub address: SocketAddr,
     pub device_type: String,
+    pub last_seen: Instant
+    
 }
 
 pub async fn run_udp_server() -> std::io::Result<()> {
@@ -37,6 +40,7 @@ pub async fn run_udp_server() -> std::io::Result<()> {
                         let client_info = ClientInfo {
                             address: addr,
                             device_type,
+                            last_seen: Instant::now()
                         };
 
                         let mut clients_map = clients.lock().unwrap();
@@ -104,6 +108,34 @@ pub async fn run_udp_server() -> std::io::Result<()> {
                         } else {
                             log::error!("[Server] Client ID not found: {}", requested_id);
                         }
+                    }
+
+                    PacketType::Ping => {
+                        let client_id: Uuid = match bincode::deserialize(&packet.payload) {
+                            Ok(id) => id,
+                            Err(_) => {
+                                log::warn!("[Server] Invalid Ping payload");
+                                continue;
+                            }
+                        };
+                    
+                        let mut clients_map = clients.lock().unwrap();
+                    
+                        if let Some(client_info) = clients_map.get_mut(&client_id) {
+                            client_info.last_seen = Instant::now(); 
+                            log::debug!("[Server] Received Ping from {}", client_id);
+                        } else {
+                            log::warn!("[Server] Ping from unknown client: {}", client_id);
+                        }
+                    
+                        // отправим PingAck, если надо
+                        let response_packet = Packet {
+                            packet_type: PacketType::PingAck,
+                            payload: vec![],
+                        };
+                    
+                        let encoded = bincode::serialize(&response_packet).expect("Failed to serialize PingAck");
+                        socket.send_to(&encoded, addr).await?;
                     }
 
                     _ => {

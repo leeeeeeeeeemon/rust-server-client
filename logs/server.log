@@ -40,3 +40,100 @@
 [2025-04-29 12:35:49] [INFO] [Client] Client info:
 [2025-04-29 12:35:49] [INFO]   Address: 127.0.0.1:58442
 [2025-04-29 12:35:49] [INFO]   Device: Desktop
+[2025-04-29 19:59:09] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 19:59:19] [INFO] [Client] Socket created: 0.0.0.0:61006
+[2025-04-29 19:59:19] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 19:59:19] [INFO] [Server] Received packet from 127.0.0.1:61006: ConnectRequest
+[2025-04-29 19:59:19] [INFO] [Server] New client added: a80665a0-746f-4b90-b445-80d09f844e92
+[2025-04-29 19:59:19] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 19:59:19] [INFO] [Server] Received packet from 127.0.0.1:61006: ClientListRequest
+[2025-04-29 19:59:19] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 19:59:19] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 19:59:19] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92 (Desktop)
+[2025-04-29 19:59:19] [INFO] [Client] Active clients:
+[2025-04-29 19:59:19] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92
+[2025-04-29 20:00:02] [INFO] [Client] Socket created: 0.0.0.0:56686
+[2025-04-29 20:00:02] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:00:02] [INFO] [Server] Received packet from 127.0.0.1:56686: ConnectRequest
+[2025-04-29 20:00:02] [INFO] [Server] New client added: 6c0f9ccc-2cb4-420a-af8a-ad9fb5270cc3
+[2025-04-29 20:00:02] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 20:00:02] [INFO] [Server] Received packet from 127.0.0.1:56686: ClientListRequest
+[2025-04-29 20:00:02] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 20:00:02] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 20:00:02] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92 (Desktop)
+[2025-04-29 20:00:02] [INFO] - 6c0f9ccc-2cb4-420a-af8a-ad9fb5270cc3 (Desktop)
+[2025-04-29 20:00:02] [INFO] [Client] Active clients:
+[2025-04-29 20:00:02] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92
+[2025-04-29 20:00:02] [INFO] - 6c0f9ccc-2cb4-420a-af8a-ad9fb5270cc3
+[2025-04-29 20:00:05] [INFO] [Client] Socket created: 0.0.0.0:63418
+[2025-04-29 20:00:05] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:00:05] [INFO] [Server] Received packet from 127.0.0.1:63418: ConnectRequest
+[2025-04-29 20:00:05] [INFO] [Server] New client added: be1bedee-bfce-41d7-a521-d5c0bf013445
+[2025-04-29 20:00:05] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 20:00:05] [INFO] [Server] Received packet from 127.0.0.1:63418: ClientListRequest
+[2025-04-29 20:00:05] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 20:00:05] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 20:00:05] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92 (Desktop)
+[2025-04-29 20:00:05] [INFO] - be1bedee-bfce-41d7-a521-d5c0bf013445 (Desktop)
+[2025-04-29 20:00:05] [INFO] - 6c0f9ccc-2cb4-420a-af8a-ad9fb5270cc3 (Desktop)
+[2025-04-29 20:00:05] [INFO] [Client] Active clients:
+[2025-04-29 20:00:05] [INFO] - a80665a0-746f-4b90-b445-80d09f844e92
+[2025-04-29 20:00:05] [INFO] - be1bedee-bfce-41d7-a521-d5c0bf013445
+[2025-04-29 20:00:05] [INFO] - 6c0f9ccc-2cb4-420a-af8a-ad9fb5270cc3
+[2025-04-29 20:00:05] [INFO] [Server] Received packet from 127.0.0.1:63418: Ping
+[2025-04-29 20:00:11] [INFO] [Client] Socket created: 0.0.0.0:54051
+[2025-04-29 20:00:11] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:00:27] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 20:00:30] [INFO] [Client] Socket created: 0.0.0.0:58731
+[2025-04-29 20:00:30] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:00:30] [INFO] [Server] Received packet from 127.0.0.1:58731: ConnectRequest
+[2025-04-29 20:00:30] [INFO] [Server] New client added: 8648a4cf-d168-4f83-8240-528290935d1a
+[2025-04-29 20:00:30] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 20:00:30] [INFO] [Server] Received packet from 127.0.0.1:58731: ClientListRequest
+[2025-04-29 20:00:30] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 20:00:30] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 20:00:30] [INFO] - 8648a4cf-d168-4f83-8240-528290935d1a (Desktop)
+[2025-04-29 20:00:30] [INFO] [Client] Active clients:
+[2025-04-29 20:00:30] [INFO] - 8648a4cf-d168-4f83-8240-528290935d1a
+[2025-04-29 20:00:33] [INFO] [Client] Socket created: 0.0.0.0:60916
+[2025-04-29 20:00:33] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:00:33] [INFO] [Server] Received packet from 127.0.0.1:60916: ConnectRequest
+[2025-04-29 20:00:33] [INFO] [Server] New client added: 0c0bf4b0-9a4a-494e-8a4d-ecc75111bfcb
+[2025-04-29 20:00:33] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 20:00:33] [INFO] [Server] Received packet from 127.0.0.1:60916: ClientListRequest
+[2025-04-29 20:00:33] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 20:00:33] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 20:00:33] [INFO] - 8648a4cf-d168-4f83-8240-528290935d1a (Desktop)
+[2025-04-29 20:00:33] [INFO] - 0c0bf4b0-9a4a-494e-8a4d-ecc75111bfcb (Desktop)
+[2025-04-29 20:00:33] [INFO] [Client] Active clients:
+[2025-04-29 20:00:33] [INFO] - 8648a4cf-d168-4f83-8240-528290935d1a
+[2025-04-29 20:00:33] [INFO] - 0c0bf4b0-9a4a-494e-8a4d-ecc75111bfcb
+[2025-04-29 20:00:33] [INFO] [Server] Received packet from 127.0.0.1:60916: Ping
+[2025-04-29 20:02:05] [INFO] [Server] Listening on 0.0.0.0:8080
+[2025-04-29 20:02:10] [INFO] [Client] Socket created: 0.0.0.0:54023
+[2025-04-29 20:02:10] [INFO] [Server] Received packet from 127.0.0.1:54023: ConnectRequest
+[2025-04-29 20:02:10] [INFO] [Client] Sent ConnectRequest to server at 127.0.0.1:8080
+[2025-04-29 20:02:10] [INFO] [Server] New client added: 1d42b6d5-f93d-4a79-830a-1c8959595ef0
+[2025-04-29 20:02:10] [INFO] [Server] Received packet from 127.0.0.1:54023: ClientListRequest
+[2025-04-29 20:02:10] [INFO] [Client] Sent ClientListRequest to server
+[2025-04-29 20:02:10] [INFO] [Server] Client requested list of active sessions
+[2025-04-29 20:02:10] [INFO] [Server] Current clients in HashMap:
+[2025-04-29 20:02:10] [INFO] - 1d42b6d5-f93d-4a79-830a-1c8959595ef0 (Desktop)
+[2025-04-29 20:02:10] [INFO] [Client] Active clients:
+[2025-04-29 20:02:10] [INFO] - 1d42b6d5-f93d-4a79-830a-1c8959595ef0
+[2025-04-29 20:02:10] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:15] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:20] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:25] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:30] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:35] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:40] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:45] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:50] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:02:55] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:00] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:05] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:10] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:15] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:20] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping
+[2025-04-29 20:03:25] [INFO] [Server] Received packet from 127.0.0.1:54023: Ping

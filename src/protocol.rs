@@ -8,6 +8,8 @@ pub enum PacketType {
     ClientListResponse,
     ClientInfoRequest,
     ClientInfoResponse,
+    Ping,      
+    PingAck,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

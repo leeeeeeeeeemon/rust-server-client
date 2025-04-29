@@ -2,9 +2,11 @@ use tokio::net::UdpSocket;
 use crate::protocol::{Packet, PacketType};
 use bincode;
 use uuid::Uuid;
+use tokio::time::{sleep, Duration};
+use std::sync::Arc;
 
 pub async fn run_udp_client() -> std::io::Result<()> {
-    let socket = UdpSocket::bind("0.0.0.0:0").await?;
+    let socket = Arc::new(UdpSocket::bind("0.0.0.0:0").await?);
     log::info!("[Client] Socket created: {}", socket.local_addr()?);
 
     let server_addr = "127.0.0.1:8080";
@@ -64,44 +66,70 @@ pub async fn run_udp_client() -> std::io::Result<()> {
         for id in &client_list {
             log::info!("- {}", id);
         }
-
+        
         if let Some(my_id_value) = my_id {
-            if let Some(first_client_id) = client_list.iter().find(|&&id| id != my_id_value) {
-                log::info!("[Client] Requesting info for client: {}", first_client_id);
+            let socket_clone = Arc::clone(&socket);
+            let my_id_bytes = bincode::serialize(&my_id_value).expect("Failed to serialize my ID");
+            let server_addr = server_addr.to_string();
         
-                // Отправляем ClientInfoRequest на информацию о первом найденном клиенте, но не о себе
-                let info_request_packet = Packet {
-                    packet_type: PacketType::ClientInfoRequest,
-                    payload: bincode::serialize(first_client_id).expect("Failed to serialize client ID"),
-                };
+            tokio::spawn(async move {
+                loop {
+                    let ping_packet = Packet {
+                        packet_type: PacketType::Ping,
+                        payload: my_id_bytes.clone(),
+                    };
         
-                let encoded_info_request = bincode::serialize(&info_request_packet).expect("Failed to serialize info request packet");
-                socket.send_to(&encoded_info_request, server_addr).await?;
-                log::info!("[Client] Sent ClientInfoRequest to server");
+                    let encoded = bincode::serialize(&ping_packet).expect("Failed to serialize Ping");
         
-                // Ждём ClientInfoResponse
-                let mut buf = vec![0u8; 2048];
-                let (len, _) = socket.recv_from(&mut buf).await?;
-                let received = &buf[..len];
+                    if let Err(e) = socket_clone.send_to(&encoded, &server_addr).await {
+                        log::error!("[Client] Failed to send Ping: {}", e);
+                    } else {
+                        log::debug!("[Client] Sent Ping");
+                    }
         
-                let packet: Packet = bincode::deserialize(received).expect("Failed to deserialize packet");
-        
-                if let PacketType::ClientInfoResponse = packet.packet_type {
-                    let (address, device_type): (std::net::SocketAddr, String) =
-                        bincode::deserialize(&packet.payload).expect("Failed to deserialize client info");
-        
-                        log::info!("[Client] Client info:");
-                        log::info!("  Address: {}", address);
-                        log::info!("  Device: {}", device_type);
+                    sleep(Duration::from_secs(5)).await;
                 }
-            } else {
-                log::error!("[Client] No other clients found.");
-            }
-        } else {
-            log::error!("[Client] Cannot request client info — no connection ID available.");
+            });
         }
+        // if let Some(my_id_value) = my_id {
+        //     if let Some(first_client_id) = client_list.iter().find(|&&id| id != my_id_value) {
+        //         log::info!("[Client] Requesting info for client: {}", first_client_id);
+        
+        //         // Отправляем ClientInfoRequest на информацию о первом найденном клиенте, но не о себе
+        //         let info_request_packet = Packet {
+        //             packet_type: PacketType::ClientInfoRequest,
+        //             payload: bincode::serialize(first_client_id).expect("Failed to serialize client ID"),
+        //         };
+        
+        //         let encoded_info_request = bincode::serialize(&info_request_packet).expect("Failed to serialize info request packet");
+        //         socket.send_to(&encoded_info_request, server_addr).await?;
+        //         log::info!("[Client] Sent ClientInfoRequest to server");
+        
+        //         // Ждём ClientInfoResponse
+        //         let mut buf = vec![0u8; 2048];
+        //         let (len, _) = socket.recv_from(&mut buf).await?;
+        //         let received = &buf[..len];
+        
+        //         let packet: Packet = bincode::deserialize(received).expect("Failed to deserialize packet");
+        
+        //         if let PacketType::ClientInfoResponse = packet.packet_type {
+        //             let (address, device_type): (std::net::SocketAddr, String) =
+        //                 bincode::deserialize(&packet.payload).expect("Failed to deserialize client info");
+        
+        //                 log::info!("[Client] Client info:");
+        //                 log::info!("  Address: {}", address);
+        //                 log::info!("  Device: {}", device_type);
+        //         }
+        //     } else {
+        //         log::error!("[Client] No other clients found.");
+        //     }
+        // } else {
+        //     log::error!("[Client] Cannot request client info — no connection ID available.");
+        // }
         
     }
-
+    loop {
+        sleep(Duration::from_secs(3600)).await; // клиент "живёт" час
+    }
     Ok(())
 }
